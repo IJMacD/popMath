@@ -10,6 +10,9 @@ $(function() {
 
       FADE_TIME = 200,
 
+      SIZE_SCALED = 1,
+      SIZE_RANDOM = 2,
+
       /* Bootstrap */
       canvas = $('#surface')[0],
       context = canvas.getContext("2d"),
@@ -30,6 +33,7 @@ $(function() {
       hudObject = new GE.GameObject(),
 
       selectedBubble,
+      bubbleSize = SIZE_RANDOM,
 
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
@@ -86,15 +90,15 @@ $(function() {
   /**
    * Generate a random int between 1 and max
    */
-  function rand(max) {
-    return Math.floor(Math.random()*(max-1))+1;
+  function rand(min,max) {
+    return Math.floor(Math.random()*(max-min))+min;
   }
 
   function randColour() {
-    var r1 = colourPicks[rand(3)+2],
-        r2 = colourPicks[rand(5)-1],
-        r3 = colourPicks[rand(3)-1],
-        r4 = rand(6);
+    var r1 = colourPicks[rand(3,5)],
+        r2 = colourPicks[rand(0,4)],
+        r3 = colourPicks[rand(0,3)],
+        r4 = rand(1,6);
     if(r4 == 1) return "#" + r1 + r2 + r3;
     if(r4 == 2) return "#" + r2 + r3 + r1;
     if(r4 == 3) return "#" + r3 + r1 + r2;
@@ -104,39 +108,47 @@ $(function() {
   }
 
   function addAdditionPair(max) {
-    var r1 = rand(max),
-        r2 = rand(max),
+    var r1 = rand(1,max),
+        r2 = rand(1,max),
         v = r1 + r2;
-    addBubble(r1 + " + " + r2, v, rand(100)+100, randColour());
-    addBubble(v, v, rand(100)+100, randColour());
+    addBubble(r1 + " + " + r2, v);
+    addBubble(v, v);
   }
 
   function addSubtractionPair(max) {
-    var r1 = rand(max),
-        r2 = rand(r1),
+    var r1 = rand(2,max),
+        r2 = rand(1,r1),
         v = r1 - r2;
-    addBubble(r1 + " - " + r2, v, rand(100)+100, randColour());
-    addBubble(v, v, rand(100)+100, randColour());
+    addBubble(r1 + " - " + r2, v);
+    addBubble(v, v);
   }
 
   function addMultiplicationPair(max) {
-    var r1 = rand(max),
-        r2 = rand(max),
+    var r1 = rand(2,max),
+        r2 = rand(1,max),
         v = r1 * r2;
-    addBubble(r1 + " × " + r2, v, rand(100)+100, randColour());
-    addBubble(v, v, rand(100)+100, randColour());
+    addBubble(r1 + " × " + r2, v);
+    addBubble(v, v);
   }
 
   function addDivisionPair(max) {
-    var r1 = rand(max),
-        r2 = rand(max),
-        v = r1 * r2;
-    addBubble(v + " ÷ " + r2, r1, rand(100)+100, randColour());
-    addBubble(r1, r1, rand(100)+100, randColour());
+    var v = rand(2,max),
+        r2 = rand(1,max),
+        r1 = v * r2;
+    addBubble(r1 + " ÷ " + r2, v);
+    addBubble(v, v);
   }
 
   function addBubble(text, value, size, colour) {
     var bubble = new GE.GameObject();
+
+    if(!size){
+      size = bubbleSize == SIZE_SCALED ? 100 + Math.log(value)*20 : rand(100,200);
+    }
+
+    if(!colour){
+      colour = randColour();
+    }
 
     vec2.random(bubble.position, GAME_WIDTH);
     vec2.random(bubble.velocity, 0.1);
@@ -147,7 +159,9 @@ $(function() {
     bubble.colour = colour;
     bubble.opacity = 1;
 
-    bubble.bounds = boundsFromSize(size);
+    // Increase the bounds slightly so that shadows aren't cut off at the
+    // true edges of the canvas
+    bubble.bounds = boundsFromSize(size+20);
 
     bubble.addComponent(bubbleClickListener);
     bubble.addComponent(moveComponent);
