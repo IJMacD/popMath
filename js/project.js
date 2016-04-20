@@ -8,6 +8,8 @@ $(function() {
       GAME_WIDTH = 1280,
       GAME_HEIGHT = 960,
 
+      FADE_TIME = 200,
+
       /* Bootstrap */
       canvas = $('#surface')[0],
       context = canvas.getContext("2d"),
@@ -25,10 +27,15 @@ $(function() {
 
       bubbleManager = new GE.GameObjectManager(),
 
+      hudObject = new GE.GameObject(),
+
+      selectedBubble,
+
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
       worldBounceComponent = new GEC.WorldBounceComponent(worldSystem),
 
+      /* Sphere Collision Bounce Vectors */
       sCBVdelta = vec3.create(),
       sCBVmtd = vec3.create(),
       sCBVv = vec3.create(),
@@ -36,22 +43,45 @@ $(function() {
       sCBVimpulse = vec3.create(),
       cRestitution = 1,
 
-      colourPicks = ["00", "66", "88", "aa", "ff"];
+      /* Random Colours */
+      colourPicks = ["00", "66", "88", "aa", "ff"],
 
-  addAdditionPair(20);
-  addSubtractionPair(20);
-  addMultiplicationPair(20);
-  addDivisionPair(20);
+      /* Bubble Click Listener */
+      bCLV = vec2.create();
+
+  hudObject.addComponent(function (parent, delta) {
+    renderSystem.push(function (context) {
+      context.fillStyle = "#FFFF00";
+      context.font = "bold 32px sans-serif";
+      context.shadowOffsetX = 2;
+      context.shadowOffsetY = 2;
+      context.shadowBlur = 10;
+      context.shadowColor = "#111111";
+      context.fillText("Level: " + game.level, 0, 50);
+    }, -1);
+  });
+
+  game.on("nextLevel", function (level) {
+    addAdditionPair(20);
+    addSubtractionPair(20);
+    addMultiplicationPair(20);
+    addDivisionPair(20);
+  });
 
   game.root.addObject(inputSystem);
 
   game.root.addObject(bubbleManager);
+
+  game.root.addObject(hudObject);
 
   game.root.addObject(worldSystem);
   game.root.addObject(cameraSystem);
   game.root.addObject(renderSystem);
 
   game.start();
+
+  /* export */
+  window.popMath = game;
 
   /**
    * Generate a random int between 1 and max
@@ -101,7 +131,7 @@ $(function() {
     var r1 = rand(max),
         r2 = rand(max),
         v = r1 * r2;
-    addBubble(v + " ÷ " + r2, v, rand(100)+100, randColour());
+    addBubble(v + " ÷ " + r2, r1, rand(100)+100, randColour());
     addBubble(r1, r1, rand(100)+100, randColour());
   }
 
@@ -115,9 +145,11 @@ $(function() {
     bubble.value = value;
     bubble.size = size;
     bubble.colour = colour;
+    bubble.opacity = 1;
 
     bubble.bounds = boundsFromSize(size);
 
+    bubble.addComponent(bubbleClickListener);
     bubble.addComponent(moveComponent);
     bubble.addComponent(sphereCollisionBouncer);
     bubble.addComponent(worldBounceComponent);
@@ -126,15 +158,55 @@ $(function() {
     bubbleManager.addObject(bubble)
   }
 
+  function selectBubble(bubble) {
+    if(selectedBubble){
+      if(selectedBubble == bubble){
+        selectedBubble = null;
+        bubble.selected = false;
+        return;
+      }
+
+      if(selectedBubble.value == bubble.value){
+        selectedBubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
+        bubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
+        game.score += 1;
+        if(bubbleManager.objects.length == 2){
+          game.nextLevel();
+        }
+      }
+      else {
+        selectedBubble.selected = false;
+        bubble.selected = false;
+      }
+      selectedBubble = null;
+    }
+    else {
+      selectedBubble = bubble;
+      bubble.selected = true;
+    }
+  }
+
   /* Shorthand Component Update method */
   function bubbleRender(parent, delta){
     renderSystem.push(function (context) {
       var x = parent.position[0],
-          y = parent.position[1];
-      context.fillStyle = parent.colour || "#000000";
+          y = parent.position[1],
+          colour = parent.colour || "#000000";
+
+      context.globalAlpha = parent.opacity;
+
+      context.shadowOffsetX = 2;
+      context.shadowOffsetY = 2;
+      context.shadowBlur = 20;
+      context.shadowColor = parent.selected ? "#FFFF00" : "#111111";
+
+      context.fillStyle = colour;
       context.beginPath();
       context.arc(x,y,parent.size/2,0,Math.PI*2,false);
       context.fill();
+
+      context.shadowColor = "transparent";
+
       context.fillStyle = "#000000";
       context.font = "bold 32px sans-serif";
       context.textAlign = "center";
@@ -209,19 +281,37 @@ $(function() {
           // change in momentum
           // this.velocity = this.velocity.add(impulse.multiply(im1));
           // ball.velocity = ball.velocity.subtract(impulse.multiply(im2));
-          var vp1 = vec3.len(parent.velocity),
-              vo1 = vec3.len(other.velocity),
-              u1 = vp1 * parent.size + vo1 * other.size,
-              vp2, vo2, u2;
           vec3.scaleAndAdd(parent.velocity, parent.velocity, sCBVimpulse, im1);
           vec3.scaleAndAdd(other.velocity, other.velocity, sCBVimpulse, -im2);
-          vp2 = vec3.len(parent.velocity);
-          vo2 = vec3.len(other.velocity);
-          u2 = vp2 * parent.size + vo2 * other.size;
-          console.log("Momentum Before: ", u1, " After: ", u2, " Delta: ", (u2-u1));
         }
       }
     });
   }
 
+  function bubbleClickListener(parent, delta) {
+    var lastClick = inputSystem.lastClick;
+
+    if(lastClick[0]){
+      vec2.subtract(bCLV, parent.position, lastClick);
+
+      if(vec2.len(bCLV) < parent.size / 2){
+        selectBubble(parent);
+      }
+    }
+  }
+
+  GE.GameComponent.create(function FadeDestroyComponent(duration){
+    this.duration = duration;
+    this.elapsed = 0;
+  }, {
+    update: function (parent, delta) {
+      var t = this.elapsed/this.duration;
+      if(t > 1){
+        parent.parent.removeObject(parent);
+        return;
+      }
+      parent.opacity = 1 - t;
+      this.elapsed += delta;
+    }
+  });
 });
