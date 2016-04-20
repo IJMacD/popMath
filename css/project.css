@@ -1,0 +1,18 @@
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+  margin: 0;
+
+  background-color: #333333;
+}
+/* Wrapper for page content to push down footer */
+#wrap {
+  height: 99%;
+  text-align: center;
+}
+#surface {
+  height: 100%;
+  width: auto;
+  margin: 0 auto;
+}
