@@ -13,6 +13,9 @@ $(function() {
       SIZE_SCALED = 1,
       SIZE_RANDOM = 2,
 
+      SCORE_ANSWER = 10,
+      SCORE_TIME_BONUS = 1000 * 1000,
+
       /* Bootstrap */
       canvas = $('#surface')[0],
       context = canvas.getContext("2d"),
@@ -34,6 +37,7 @@ $(function() {
 
       selectedBubble,
       bubbleSize = SIZE_RANDOM,
+      lastLevelTime = 0,
 
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
@@ -53,6 +57,7 @@ $(function() {
       /* Bubble Click Listener */
       bCLV = vec2.create();
 
+  hudObject.score = game.score;
   hudObject.addComponent(function (parent, delta) {
     renderSystem.push(function (context) {
       context.fillStyle = "#FFFF00";
@@ -62,7 +67,12 @@ $(function() {
       context.shadowBlur = 10;
       context.shadowColor = "#111111";
       context.fillText("Level: " + game.level, 0, 50);
+      context.fillText("Score: " + Math.round(parent.score), GAME_WIDTH - 200, 50);
     }, -1);
+  });
+  // Provide some easing for score updates
+  hudObject.addComponent(function (parent, update) {
+    parent.score += (game.score - parent.score) / 10;
   });
 
   game.on("nextLevel", function (level) {
@@ -70,6 +80,12 @@ $(function() {
     addSubtractionPair(20);
     addMultiplicationPair(20);
     addDivisionPair(20);
+
+    if(level > 1){
+      var levelDuration = game.time - lastLevelTime;
+      game.score += SCORE_TIME_BONUS / levelDuration;
+    }
+    lastLevelTime = game.time;
   });
 
   game.root.addObject(inputSystem);
@@ -183,7 +199,7 @@ $(function() {
       if(selectedBubble.value == bubble.value){
         selectedBubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
         bubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
-        game.score += 1;
+        game.score += SCORE_ANSWER;
         if(bubbleManager.objects.length == 2){
           game.nextLevel();
         }
