@@ -37,7 +37,7 @@ $(function() {
 
       selectedBubble,
       bubbleSize = SIZE_RANDOM,
-      lastLevelTime = 0,
+      levelLoadTime = 0,
 
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
@@ -75,17 +75,59 @@ $(function() {
     parent.score += (game.score - parent.score) / 10;
   });
 
-  game.on("nextLevel", function (level) {
-    addAdditionPair(20);
-    addSubtractionPair(20);
-    addMultiplicationPair(20);
-    addDivisionPair(20);
+  game.on("loadLevel", function (level) {
+    levelLoadTime = game.time;
 
-    if(level > 1){
-      var levelDuration = game.time - lastLevelTime;
-      game.score += SCORE_TIME_BONUS / levelDuration;
+    bubbleManager.removeAll();
+
+    if(level == 1){
+      addAdditionPair(5);
+      addAdditionPair(5);
+      addAdditionPair(10);
     }
-    lastLevelTime = game.time;
+    else if(level < 3){
+      addAdditionPair(5);
+      addAdditionPair(10);
+      addAdditionPair(10);
+    }
+    else if(level < 5){
+      addAdditionPair(10);
+      addAdditionPair(10);
+      addSubtractionPair(10);
+    }
+    else if(level < 6){
+      addAdditionPair(20);
+      addAdditionPair(20);
+      addSubtractionPair(20);
+    }
+    else if(level < 9){
+      addAdditionPair(20);
+      addSubtractionPair(20);
+      addMultiplicationPair(5);
+    }
+    else if(level < 12){
+      addAdditionPair(20);
+      addSubtractionPair(20);
+      addMultiplicationPair(10);
+    }
+    else if(level < 15){
+      addAdditionPair(20);
+      addSubtractionPair(20);
+      addMultiplicationPair(15);
+      addDivisionPair(10);
+    }
+    else if(level < 18){
+      addAdditionPair(20);
+      addSubtractionPair(20);
+      addMultiplicationPair(20);
+      addDivisionPair(20);
+    }
+    else {
+      addMultiplicationAdditionPair(20);
+      addMultiplicationSubtractionPair(20);
+      addMultiplicationAdditionPair(20);
+      addMultiplicationSubtractionPair(20);
+    }
   });
 
   game.root.addObject(inputSystem);
@@ -149,10 +191,32 @@ $(function() {
 
   function addDivisionPair(max) {
     var v = rand(2,max),
-        r2 = rand(1,max),
+        r2 = rand(2,max),
         r1 = v * r2;
     addBubble(r1 + " ÷ " + r2, v);
     addBubble(v, v);
+  }
+
+  function addMultiplicationAdditionPair(max) {
+    var sqrt_max = Math.sqrt(max),
+        r1 = rand(2,sqrt_max),
+        r2 = rand(1,max),
+        v = r1 * r2,
+        r3 = rand(1, v),
+        r4 = v - r3;
+    addBubble(r1 + " × " + r2, v);
+    addBubble(r3 + " + " + r4, v);
+  }
+
+  function addMultiplicationSubtractionPair(max) {
+    var sqrt_max = Math.sqrt(max),
+        r1 = rand(2,sqrt_max),
+        r2 = rand(1,max),
+        v = r1 * r2,
+        r4 = rand(1, v),
+        r3 = v + r4;
+    addBubble(r1 + " × " + r2, v);
+    addBubble(r3 + " - " + r4, v);
   }
 
   function addBubble(text, value, size, colour) {
@@ -197,10 +261,16 @@ $(function() {
       }
 
       if(selectedBubble.value == bubble.value){
+
         selectedBubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
         bubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
+
         game.score += SCORE_ANSWER;
+
+        // We're just about to kill the last to objects, so time to start
+        // next level rolling
         if(bubbleManager.objects.length == 2){
+          game.score += SCORE_TIME_BONUS / (game.time - levelLoadTime);
           game.nextLevel();
         }
       }
