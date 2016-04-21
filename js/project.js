@@ -81,52 +81,70 @@ $(function() {
     bubbleManager.removeAll();
 
     if(level == 1){
-      addAdditionPair(5);
-      addAdditionPair(5);
-      addAdditionPair(10);
+      addAdditionPair(1,5);
+      addAdditionPair(1,5);
+      addAdditionPair(1,10);
     }
     else if(level < 3){
-      addAdditionPair(5);
-      addAdditionPair(10);
-      addAdditionPair(10);
+      addAdditionPair(1,5);
+      addAdditionPair(1,10);
+      addAdditionPair(1,10);
     }
     else if(level < 5){
-      addAdditionPair(10);
-      addAdditionPair(10);
-      addSubtractionPair(10);
+      addAdditionPair(1,10);
+      addAdditionPair(5,10);
+      addSubtractionPair(1,10);
     }
     else if(level < 6){
-      addAdditionPair(20);
-      addAdditionPair(20);
-      addSubtractionPair(20);
+      addAdditionPair(5,20);
+      addAdditionPair(5,20);
+      addSubtractionPair(1,20);
     }
     else if(level < 9){
-      addAdditionPair(20);
-      addSubtractionPair(20);
-      addMultiplicationPair(5);
+      addAdditionPair(5,20);
+      addSubtractionPair(5,20);
+      addMultiplicationPair(1,5);
     }
     else if(level < 12){
-      addAdditionPair(20);
-      addSubtractionPair(20);
-      addMultiplicationPair(10);
+      addAdditionPair(5,20);
+      addSubtractionPair(5,20);
+      addMultiplicationPair(1,10);
     }
-    else if(level < 15){
-      addAdditionPair(20);
-      addSubtractionPair(20);
-      addMultiplicationPair(15);
-      addDivisionPair(10);
+    else if(level < 20){
+      addAdditionPair(5,20);
+      addSubtractionPair(5,20);
+      addMultiplicationPair(2,15);
+      addDivisionPair(1,10);
     }
-    else if(level < 18){
-      addAdditionPair(20);
-      addSubtractionPair(20);
-      addMultiplicationPair(20);
-      addDivisionPair(20);
+    else if(level < 50){
+      addAdditionPair(10,level);
+      addSubtractionPair(10,level);
+      addMultiplicationPair(5, level);
+      addDivisionPair(5, level);
+    }
+    else if(level < 60) {
+      addMultiplicationAdditionPair(1, 20);
+      addMultiplicationSubtractionPair(1, 20);
+      addMultiplicationAdditionPair(1, 20);
+      addMultiplicationSubtractionPair(1, 20);
+    }
+    else if(level < 75) {
+      addMultiplicationAdditionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationAdditionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+    }
+     else if(level < 90) {
+      addMultiplicationAdditionPair(1, 20);
+      addMultiplicationSubtractionPair(1, 20);
+      addMultiplicationSubtractionPair(1, 20);
+      addMultiplicationMultiplicationPair(1, 20);
     }
     else {
-      addMultiplicationAdditionPair(20);
-      addMultiplicationSubtractionPair(20);
-      addMultiplicationAdditionPair(20);
-      addMultiplicationSubtractionPair(20);
+      addMultiplicationAdditionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationMultiplicationPair(1, level);
     }
   });
 
@@ -165,58 +183,72 @@ $(function() {
     return "#" + r3 + r2 + r1;
   }
 
-  function addAdditionPair(max) {
-    var r1 = rand(1,max),
-        r2 = rand(1,max),
+  function addAdditionPair(min,max) {
+    var r1 = rand(min,max),
+        r2 = rand(min,max),
         v = r1 + r2;
     addBubble(r1 + " + " + r2, v);
     addBubble(v, v);
   }
 
-  function addSubtractionPair(max) {
-    var r1 = rand(2,max),
-        r2 = rand(1,r1),
+  function addSubtractionPair(min, max) {
+    var r1 = rand(min+1,max),
+        r2 = rand(min,r1),
         v = r1 - r2;
     addBubble(r1 + " - " + r2, v);
     addBubble(v, v);
   }
 
-  function addMultiplicationPair(max) {
-    var r1 = rand(2,max),
-        r2 = rand(1,max),
+  function addMultiplicationPair(min,max) {
+    var r1 = rand(min+1,max),
+        r2 = rand(min,max),
         v = r1 * r2;
     addBubble(r1 + " × " + r2, v);
     addBubble(v, v);
   }
 
-  function addDivisionPair(max) {
-    var v = rand(2,max),
-        r2 = rand(2,max),
+  function addDivisionPair(min,max) {
+    var v = rand(min,max),
+        r2 = rand(min,max),
         r1 = v * r2;
     addBubble(r1 + " ÷ " + r2, v);
     addBubble(v, v);
   }
 
-  function addMultiplicationAdditionPair(max) {
+  function addMultiplicationAdditionPair(min,max) {
     var sqrt_max = Math.sqrt(max),
-        r1 = rand(2,sqrt_max),
-        r2 = rand(1,max),
+        r1 = rand(min+1,sqrt_max),
+        r2 = rand(min,max),
         v = r1 * r2,
-        r3 = rand(1, v),
+        r3 = rand(min, v),
         r4 = v - r3;
     addBubble(r1 + " × " + r2, v);
     addBubble(r3 + " + " + r4, v);
   }
 
-  function addMultiplicationSubtractionPair(max) {
+  function addMultiplicationSubtractionPair(min, max) {
     var sqrt_max = Math.sqrt(max),
-        r1 = rand(2,sqrt_max),
-        r2 = rand(1,max),
+        r1 = rand(min+1,sqrt_max),
+        r2 = rand(min,max),
         v = r1 * r2,
-        r4 = rand(1, v),
+        r4 = rand(min, v),
         r3 = v + r4;
     addBubble(r1 + " × " + r2, v);
     addBubble(r3 + " - " + r4, v);
+  }
+
+  function addMultiplicationMultiplicationPair(min, max) {
+    var sqrt_max = Math.sqrt(max),
+        r1 = rand(min+1,sqrt_max),
+        r2 = rand(min,sqrt_max),
+        r3 = rand(min,sqrt_max),
+        a = r1 * r2,
+        b = r2 * r3,
+        c = r1 * r3,
+        v = a * b,
+        d = v / c;
+    addBubble(a + " × " + b, v);
+    addBubble(c + " × " + d, v);
   }
 
   function addBubble(text, value, size, colour) {
@@ -340,31 +372,23 @@ $(function() {
         var minDist = (parent.size + other.size) / 2,
             curDist = vec3.dist(parent.position, other.position);
         if(curDist < minDist){
+          // http://stackoverflow.com/q/345838
           // get the mtd
-          // Vector2d delta = (position.subtract(ball.position));
-          // float d = delta.getLength();
           vec3.subtract(sCBVdelta, parent.position, other.position);
 
           // minimum translation distance to push balls apart after intersecting
-          // Vector2d mtd = delta.multiply(((getRadius() + ball.getRadius())-d)/d);
           vec3.scale(sCBVmtd, sCBVdelta, (minDist-curDist)/curDist);
 
           // resolve intersection --
           // inverse mass quantities
-          // float im1 = 1 / getMass();
-          // float im2 = 1 / ball.getMass();
           var im1 = 1 / parent.size; // / parent.value;
           var im2 = 1 / other.size; // / other.value;
 
           // push-pull them apart based off their mass
-          // position = position.add(mtd.multiply(im1 / (im1 + im2)));
-          // ball.position = ball.position.subtract(mtd.multiply(im2 / (im1 + im2)));
           vec3.scaleAndAdd(parent.position, parent.position, sCBVmtd, im1 / (im1 + im2));
           vec3.scaleAndAdd(other.position, other.position, sCBVmtd, -im2 / (im1 + im2));
 
           // impact speed
-          // Vector2d v = (this.velocity.subtract(ball.velocity));
-          // float vn = v.dot(mtd.normalize());
           vec3.subtract(sCBVv, parent.velocity, other.velocity);
           vec3.normalize(sCBVmtdNorm, sCBVmtd);
           var vn = vec3.dot(sCBVv, sCBVmtdNorm)
@@ -373,14 +397,10 @@ $(function() {
           if (vn > 0) return;
 
           // collision impulse
-          // float i = (-(1.0f + Constants.restitution) * vn) / (im1 + im2);
-          // Vector2d impulse = mtd.multiply(i);
           var i = (-(1 + cRestitution) * vn) / (im1 + im2);
           vec3.scale(sCBVimpulse, sCBVmtdNorm, i);
 
           // change in momentum
-          // this.velocity = this.velocity.add(impulse.multiply(im1));
-          // ball.velocity = ball.velocity.subtract(impulse.multiply(im2));
           vec3.scaleAndAdd(parent.velocity, parent.velocity, sCBVimpulse, im1);
           vec3.scaleAndAdd(other.velocity, other.velocity, sCBVimpulse, -im2);
         }
