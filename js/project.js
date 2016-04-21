@@ -13,6 +13,14 @@ $(function() {
       SIZE_SCALED = 1,
       SIZE_RANDOM = 2,
 
+      MIN_BUBBLE_SIZE = 75,
+      MAX_BUBBLE_SIZE = 150,
+
+      BUBBLE_FONT = "bold 24px sans-serif",
+      BUBBLE_COLOUR = "#000000",
+      HUD_FONT = "bold 24px sans-serif",
+      HUD_COLOUR = "#FFFF00",
+
       SCORE_ANSWER = 10,
       SCORE_TIME_BONUS = 1000 * 1000,
 
@@ -60,14 +68,16 @@ $(function() {
   hudObject.score = game.score;
   hudObject.addComponent(function (parent, delta) {
     renderSystem.push(function (context) {
-      context.fillStyle = "#FFFF00";
-      context.font = "bold 32px sans-serif";
+      context.fillStyle = HUD_COLOUR;
+      context.font = HUD_FONT;
       context.shadowOffsetX = 2;
       context.shadowOffsetY = 2;
       context.shadowBlur = 10;
       context.shadowColor = "#111111";
-      context.fillText("Level: " + game.level, 0, 50);
-      context.fillText("Score: " + Math.round(parent.score), GAME_WIDTH - 200, 50);
+      context.fillText("Level: " + game.level, 10, 50);
+      var scoreText = "Score: " + Math.round(parent.score),
+          scoreWidth = context.measureText(scoreText).width;
+      context.fillText(scoreText, GAME_WIDTH - scoreWidth - 10, 50);
     }, -1);
   });
   // Provide some easing for score updates
@@ -159,6 +169,18 @@ $(function() {
   game.root.addObject(renderSystem);
 
   game.start();
+
+  function autosize() {
+    var $canvas = $(canvas),
+        w = $canvas.width(),
+        h = $canvas.height();
+    game.setSize(w, h);
+    cameraSystem.setPosition(w/2,h/2);
+    cameraSystem.setSize(w, h);
+    worldSystem.setBounds([0,0,w,h]);
+  }
+  $(window).on("resize", autosize);
+  autosize();
 
   /* export */
   window.popMath = game;
@@ -255,7 +277,7 @@ $(function() {
     var bubble = new GE.GameObject();
 
     if(!size){
-      size = bubbleSize == SIZE_SCALED ? 100 + Math.log(value)*20 : rand(100,200);
+      size = bubbleSize == SIZE_SCALED ? MIN_BUBBLE_SIZE + Math.log(value)*20 : rand(MIN_BUBBLE_SIZE,MAX_BUBBLE_SIZE);
     }
 
     if(!colour){
@@ -339,8 +361,8 @@ $(function() {
 
       context.shadowColor = "transparent";
 
-      context.fillStyle = "#000000";
-      context.font = "bold 32px sans-serif";
+      context.fillStyle = BUBBLE_COLOUR;
+      context.font = BUBBLE_FONT;
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText(parent.text, x, y);

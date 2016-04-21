@@ -13,6 +13,7 @@ body {
 }
 #surface {
   height: 100%;
-  width: auto;
+  width: 100%;
   margin: 0 auto;
+  max-width: 1280px;
 }
