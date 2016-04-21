@@ -1,4 +1,5 @@
 $(function() {
+  "FadeDestroyComponent: nomunge";
 
   "use strict";
 
