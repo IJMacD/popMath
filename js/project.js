@@ -172,8 +172,9 @@ $(function() {
 
   function autosize() {
     var $canvas = $(canvas),
-        w = $canvas.width(),
-        h = $canvas.height();
+        scale = window.devicePixelRatio || 1,
+        w = $canvas.width() * scale,
+        h = $canvas.height() * scale;
     game.setSize(w, h);
     cameraSystem.setPosition(w/2,h/2);
     cameraSystem.setSize(w, h);
