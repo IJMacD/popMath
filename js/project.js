@@ -77,7 +77,7 @@ $(function() {
       context.fillText("Level: " + game.level, 10, 50);
       var scoreText = "Score: " + Math.round(parent.score),
           scoreWidth = context.measureText(scoreText).width;
-      context.fillText(scoreText, GAME_WIDTH - scoreWidth - 10, 50);
+      context.fillText(scoreText, cameraSystem.width - scoreWidth - 10, 50);
     }, -1);
   });
   // Provide some easing for score updates
