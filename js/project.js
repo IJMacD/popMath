@@ -127,9 +127,15 @@ $(function() {
       addMultiplicationPair(2,15);
       addDivisionPair(1,10);
     }
-    else if(level < 50){
+    else if(level < 30){
       addAdditionPair(10,level);
       addSubtractionPair(10,level);
+      addMultiplicationPair(5, level);
+      addDivisionPair(5, level);
+    }
+    else if(level < 50){
+      addMultiplicationPair(5, level);
+      addDivisionPair(5, level);
       addMultiplicationPair(5, level);
       addDivisionPair(5, level);
     }
@@ -151,11 +157,31 @@ $(function() {
       addMultiplicationSubtractionPair(1, 20);
       addMultiplicationMultiplicationPair(1, 20);
     }
+    else if(level < 100) {
+      addMultiplicationAdditionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationMultiplicationPair(1, level);
+    }
     else {
       addMultiplicationAdditionPair(1, level);
       addMultiplicationSubtractionPair(1, level);
       addMultiplicationSubtractionPair(1, level);
       addMultiplicationMultiplicationPair(1, level);
+
+      var count = (level - 100) / 5,
+          i,
+          r;
+      for(i=0;i<count; i++){
+        r = rand(0,count);
+        if(r == 0) addMultiplicationAdditionPair(1, level);
+        else if(r == 1) addMultiplicationSubtractionPair(1, level);
+        else if(r == 2) addMultiplicationMultiplicationPair(1, level);
+        else if(r == 3) addAdditionAdditionPair(1, level);
+        else if(r == 4) addAdditionSubtractionPair(1, level);
+        else if(r == 5) addSubtractionSubtractionPair(1, level);
+        else addMultiplicationAdditionPair(1, level);
+      }
     }
   });
 
@@ -218,8 +244,8 @@ $(function() {
   function addSubtractionPair(min, max) {
     var r1 = rand(min+1,max),
         r2 = rand(min,r1),
-        v = r1 - r2;
-    addBubble(r1 + " - " + r2, v);
+        v = r1;
+    addBubble((r1 + r2) + " - " + r2, v);
     addBubble(v, v);
   }
 
@@ -273,6 +299,35 @@ $(function() {
         d = v / c;
     addBubble(a + " × " + b, v);
     addBubble(c + " × " + d, v);
+  }
+
+  function addAdditionAdditionPair(min,max) {
+    var r1 = rand(min,max),
+        r2 = rand(min,max),
+        v = r1 + r2,
+        r3 = rand(min, v),
+        r4 = v - r3;
+    addBubble(r1 + " + " + r2, v);
+    addBubble(r3 + " + " + r4, v);
+  }
+
+  function addAdditionSubtractionPair(min,max) {
+    var r1 = rand(min,max),
+        r2 = rand(min,max),
+        v = r1,
+        r3 = rand(min, v-1),
+        r4 = v - r3;
+    addBubble((r1 + r2) + " - " + r2, v);
+    addBubble(r3 + " + " + r4, v);
+  }
+
+  function addSubtractionSubtractionPair(min,max) {
+    var r1 = rand(min,max),
+        r2 = rand(min,max),
+        v = r1,
+        r3 = rand(min, v-1);
+    addBubble((r1 + r2) + " - " + r2, v);
+    addBubble((r3 + r1) + " - " + r3, v);
   }
 
   function addBubble(text, value, size, colour) {
