@@ -43,6 +43,8 @@ $(function() {
 
       hudObject = new GE.GameObject(),
 
+      popSound = new Audio("snd/BubblePop.mp3"),
+
       selectedBubble,
       bubbleSize = SIZE_RANDOM,
       levelLoadTime = 0,
@@ -321,6 +323,8 @@ $(function() {
         bubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
 
         game.score += SCORE_ANSWER;
+
+        popSound.play();
 
         // We're just about to kill the last to objects, so time to start
         // next level rolling
