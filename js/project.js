@@ -95,9 +95,17 @@ $(function() {
     parent.score += (game.score - parent.score) / 10;
   });
 
+  // CompleteLevelOnEmptyComponent tells the game that it should
+  // consider this level to have been completed when its parent
+  // *GameManagerObject* is empty. It will only trigger once until
+  // new objects have been added to its parent again.
   bubbleManager.addComponent(function CompleteLevelOnEmptyComponent(parent, delta) {
-    if(parent.objects.length == 0){
+    if(parent.objects.length == 0 && !this._triggered){
       game.completeLevel();
+      this._triggered = true;
+    }
+    else if(this._triggered){
+      this._triggered = (parent.objects.length == 0);
     }
   });
 
