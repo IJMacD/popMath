@@ -50,6 +50,7 @@ $(function() {
       selectedBubble,
       bubbleSize = SIZE_RANDOM,
       levelLoadTime = 0,
+      fps = 0,
 
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
@@ -82,6 +83,11 @@ $(function() {
       var scoreText = "Score: " + Math.round(parent.score),
           scoreWidth = context.measureText(scoreText).width;
       context.fillText(scoreText, cameraSystem.width - scoreWidth - 10, 50);
+      if(GE.DEBUG && delta){
+        fps += ((1000/delta) - fps) / 50;
+        context.font = "bold 16px sans-serif";
+        context.fillText("fps: " + Math.round(fps), 10, 70);
+      }
     }, -1);
   });
   // Provide some easing for score updates
