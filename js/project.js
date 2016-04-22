@@ -14,15 +14,15 @@ $(function() {
       SIZE_SCALED = 1,
       SIZE_RANDOM = 2,
 
-      MIN_BUBBLE_SIZE = 75,
-      MAX_BUBBLE_SIZE = 150,
+      MIN_BUBBLE_SIZE = 100,
+      MAX_BUBBLE_SIZE = 200,
 
       BUBBLE_VELOCITY = 0.05,
 
-      BUBBLE_TEXT_SIZE = 24,
+      BUBBLE_TEXT_SIZE = 32,
       BUBBLE_FONT = "bold "+BUBBLE_TEXT_SIZE+"px sans-serif",
       BUBBLE_COLOUR = "#000000",
-      HUD_FONT = "bold 24px sans-serif",
+      HUD_FONT = "bold 32px sans-serif",
       HUD_COLOUR = "#FFFF00",
 
       SCORE_ANSWER = 10,
