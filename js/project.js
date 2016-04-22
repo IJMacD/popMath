@@ -17,6 +17,8 @@ $(function() {
       MIN_BUBBLE_SIZE = 75,
       MAX_BUBBLE_SIZE = 150,
 
+      BUBBLE_VELOCITY = 0.05,
+
       BUBBLE_FONT = "bold 24px sans-serif",
       BUBBLE_COLOUR = "#000000",
       HUD_FONT = "bold 24px sans-serif",
@@ -342,7 +344,7 @@ $(function() {
     }
 
     vec2.random(bubble.position, GAME_WIDTH);
-    vec2.random(bubble.velocity, 0.1);
+    vec2.random(bubble.velocity, BUBBLE_VELOCITY);
 
     bubble.text = text;
     bubble.value = value;
