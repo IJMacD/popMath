@@ -95,6 +95,12 @@ $(function() {
     parent.score += (game.score - parent.score) / 10;
   });
 
+  bubbleManager.addComponent(function CompleteLevelOnEmptyComponent(parent, delta) {
+    if(parent.objects.length == 0){
+      game.completeLevel();
+    }
+  });
+
   game.on("loadLevel", function (level) {
     levelLoadTime = game.time;
 
@@ -386,13 +392,6 @@ $(function() {
         bubble.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
 
         game.score += SCORE_ANSWER;
-
-        // We're just about to kill the last to objects, so time to start
-        // next level rolling
-        if(bubbleManager.objects.length == 2){
-          game.score += SCORE_TIME_BONUS / (game.time - levelLoadTime);
-          game.nextLevel();
-        }
       }
       else {
         selectedBubble.selected = false;
@@ -405,6 +404,11 @@ $(function() {
       bubble.selected = true;
     }
   }
+
+  game.on("levelComplete", function (level) {
+    game.score += SCORE_TIME_BONUS / (game.time - levelLoadTime);
+    game.nextLevel();
+  });
 
   /* Shorthand Component Update method */
   function bubbleRender(parent, delta){
