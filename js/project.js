@@ -136,17 +136,31 @@ $(function() {
     }
     else if(level < 9){
       addAdditionPair(5,20);
+      addAdditionPair(5,20);
+      addSubtractionPair(1,20);
       addSubtractionPair(5,20);
-      addMultiplicationPair(1,5);
     }
     else if(level < 12){
       addAdditionPair(5,20);
       addSubtractionPair(5,20);
-      addMultiplicationPair(1,10);
+      addSubtractionPair(5,20);
+      addMultiplicationPair(2,5);
+    }
+    else if(level < 15){
+      addAdditionPair(5,20);
+      addAdditionPair(10,20);
+      addMultiplicationPair(2,5);
+      addMultiplicationPair(2,12);
     }
     else if(level < 20){
-      addAdditionPair(5,20);
-      addSubtractionPair(5,20);
+      addAdditionPair(10,20);
+      addSubtractionPair(10,20);
+      addMultiplicationPair(2,10);
+      addMultiplicationPair(2,12);
+    }
+    else if(level < 25){
+      addAdditionPair(10,20);
+      addSubtractionPair(10,20);
       addMultiplicationPair(2,15);
       addDivisionPair(1,10);
     }
