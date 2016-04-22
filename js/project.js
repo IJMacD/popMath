@@ -19,7 +19,8 @@ $(function() {
 
       BUBBLE_VELOCITY = 0.05,
 
-      BUBBLE_FONT = "bold 24px sans-serif",
+      BUBBLE_TEXT_SIZE = 24,
+      BUBBLE_FONT = "bold "+BUBBLE_TEXT_SIZE+"px sans-serif",
       BUBBLE_COLOUR = "#000000",
       HUD_FONT = "bold 24px sans-serif",
       HUD_COLOUR = "#FFFF00",
@@ -424,6 +425,10 @@ $(function() {
       context.font = BUBBLE_FONT;
       context.textAlign = "center";
       context.textBaseline = "middle";
+      var textWidth = context.measureText(parent.text).width;
+      if(textWidth > parent.size){
+        context.font = "bold "+(BUBBLE_TEXT_SIZE*parent.size/textWidth)+"px sans-serif";
+      }
       context.fillText(parent.text, x, y);
     });
   }
