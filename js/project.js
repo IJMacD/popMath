@@ -441,8 +441,6 @@ $(function() {
 
       context.globalAlpha = parent.opacity;
 
-      context.shadowOffsetX = 2;
-      context.shadowOffsetY = 2;
       context.shadowBlur = 20;
       context.shadowColor = parent.selected ? "#FFFF00" : "#111111";
 
