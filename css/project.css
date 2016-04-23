@@ -5,10 +5,12 @@ body {
   margin: 0;
 
   background-color: #333333;
+
+  overflow: hidden;
 }
 /* Wrapper for page content to push down footer */
 #wrap {
-  height: 99%;
+  height: 100%;
   text-align: center;
 }
 #surface {

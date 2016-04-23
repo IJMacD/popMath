@@ -419,11 +419,11 @@ $(function() {
     bubble.value = value;
     bubble.size = size;
     bubble.colour = colour;
-    bubble.opacity = 1;
+    bubble.opacity = 0.8;
 
     // Increase the bounds slightly so that shadows aren't cut off at the
     // true edges of the canvas
-    bubble.bounds = boundsFromSize(size+20);
+    bubble.bounds = boundsFromSize(size);
 
     bubble.addComponent(bubbleClickListener);
     bubble.addComponent(realWordSwitchComponent);
