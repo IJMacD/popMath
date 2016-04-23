@@ -412,7 +412,7 @@ $(function() {
       colour = randColour();
     }
 
-    vec2.random(bubble.position, GAME_WIDTH);
+    vec2.set(bubble.position, Math.random()*game.width, Math.random()*game.height);
     vec2.random(bubble.velocity, BUBBLE_VELOCITY);
 
     bubble.text = text;
