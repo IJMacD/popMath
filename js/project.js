@@ -55,6 +55,9 @@ $(function() {
       /* Shared Components */
       moveComponent = new GEC.MoveComponent(),
       worldBounceComponent = new GEC.WorldBounceComponent(worldSystem),
+      gravityComponent = new GEC.GravityComponent(),
+      rotationComponent = new GEC.RotationComponent(),
+      realWordSwitchComponent = new GEC.SwitchComponent(),
 
       /* Sphere Collision Bounce Vectors */
       sCBVdelta = vec3.create(),
@@ -62,13 +65,33 @@ $(function() {
       sCBVv = vec3.create(),
       sCBVmtdNorm = vec3.create(),
       sCBVimpulse = vec3.create(),
-      cRestitution = 1,
+      cRestitution = 0.95,
 
       /* Random Colours */
       colourPicks = ["00", "66", "88", "aa", "ff"],
 
       /* Bubble Click Listener */
       bCLV = vec2.create();
+
+  realWordSwitchComponent.addComponent(gravityComponent);
+  realWordSwitchComponent.addComponent(rotationComponent);
+  realWordSwitchComponent.addComponent(function RotateOnBounceComponent(parent, delta) {
+    if(parent.hasBounced == 1){
+      parent.rotationSpeed = parent.velocity[1] / parent.size;
+    }
+
+    if(parent.hasBounced == 2){
+      parent.rotationSpeed = parent.velocity[0] / parent.size;
+    }
+  });
+  realWordSwitchComponent.addComponent(function RotationSpeedDecayComponent(parent, delta) {
+    parent.rotationSpeed *= 1 - (0.0001 * delta);
+    if(Math.abs(parent.rotationSpeed) < 0.0001){ parent.rotationSpeed = 0; }
+  });
+  realWordSwitchComponent.setActive(false);
+
+  worldBounceComponent.cRestitution = 0.90;
+  worldBounceComponent.cFriction = 0.9;
 
   hudObject.score = game.score;
   hudObject.addComponent(function (parent, delta) {
@@ -109,6 +132,17 @@ $(function() {
     }
   });
 
+  bubbleManager.addComponent(function (parent, delta) {
+    if(this.count == undefined){ this.count = 3; }
+    if(inputSystem.lastKey == GE.InputSystem.Keys.r){
+      this.count --;
+      if(this.count <= 0){
+        realWordSwitchComponent.flip();
+        this.count = 3;
+      }
+    }
+  });
+
   game.on("loadLevel", function (level) {
     levelLoadTime = game.time;
 
@@ -132,7 +166,7 @@ $(function() {
     else if(level < 6){
       addAdditionPair(5,20);
       addAdditionPair(5,20);
-      addSubtractionPair(1,20);
+      addSubtractionPair(1,10);
     }
     else if(level < 9){
       addAdditionPair(5,20);
@@ -392,6 +426,7 @@ $(function() {
     bubble.bounds = boundsFromSize(size+20);
 
     bubble.addComponent(bubbleClickListener);
+    bubble.addComponent(realWordSwitchComponent);
     bubble.addComponent(moveComponent);
     bubble.addComponent(sphereCollisionBouncer);
     bubble.addComponent(worldBounceComponent);
@@ -439,6 +474,10 @@ $(function() {
           y = parent.position[1],
           colour = parent.colour || "#000000";
 
+      context.translate(x, y);
+
+      context.rotate(parent.rotation);
+
       context.globalAlpha = parent.opacity;
 
       context.shadowBlur = 20;
@@ -446,7 +485,7 @@ $(function() {
 
       context.fillStyle = colour;
       context.beginPath();
-      context.arc(x,y,parent.size/2,0,Math.PI*2,false);
+      context.arc(0,0,parent.size/2,0,Math.PI*2,false);
       context.fill();
 
       context.shadowColor = "transparent";
@@ -459,7 +498,7 @@ $(function() {
       if(textWidth > parent.size){
         context.font = "bold "+(BUBBLE_TEXT_SIZE*parent.size/textWidth)+"px sans-serif";
       }
-      context.fillText(parent.text, x, y);
+      context.fillText(parent.text, 0, 0);
     });
   }
 
