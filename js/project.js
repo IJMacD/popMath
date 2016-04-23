@@ -195,20 +195,26 @@ $(function() {
     else if(level < 25){
       addAdditionPair(10,20);
       addSubtractionPair(10,20);
-      addMultiplicationPair(2,15);
+      addMultiplicationPair(2,12);
       addDivisionPair(1,10);
     }
     else if(level < 30){
       addAdditionPair(10,level);
       addSubtractionPair(10,level);
-      addMultiplicationPair(5, level);
-      addDivisionPair(5, level);
+      addMultiplicationPair(5, 12);
+      addDivisionPair(5, 12);
+    }
+    else if(level < 40){
+      addMultiplicationPair(2, 12);
+      addDivisionPair(2, 12);
+      addMultiplicationPair(5, 12);
+      addDivisionPair(5, 12);
     }
     else if(level < 50){
-      addMultiplicationPair(5, level);
-      addDivisionPair(5, level);
-      addMultiplicationPair(5, level);
-      addDivisionPair(5, level);
+      addMultiplicationPair(5, level - 25);
+      addDivisionPair(5, level - 25);
+      addMultiplicationPair(5, level - 25);
+      addDivisionPair(5, level - 25);
     }
     else if(level < 60) {
       addMultiplicationAdditionPair(1, 20);
@@ -217,28 +223,28 @@ $(function() {
       addMultiplicationSubtractionPair(1, 20);
     }
     else if(level < 75) {
-      addMultiplicationAdditionPair(1, level);
-      addMultiplicationSubtractionPair(1, level);
-      addMultiplicationAdditionPair(1, level);
-      addMultiplicationSubtractionPair(1, level);
+      addMultiplicationAdditionPair(1, level - 30);
+      addMultiplicationSubtractionPair(1, level - 30);
+      addMultiplicationAdditionPair(1, level - 30);
+      addMultiplicationSubtractionPair(1, level - 30);
     }
      else if(level < 90) {
-      addMultiplicationAdditionPair(1, 20);
-      addMultiplicationSubtractionPair(1, 20);
-      addMultiplicationSubtractionPair(1, 20);
-      addMultiplicationMultiplicationPair(1, 20);
+      addMultiplicationAdditionPair(10, 50);
+      addMultiplicationSubtractionPair(5, 20);
+      addMultiplicationSubtractionPair(5, 30);
+      addMultiplicationMultiplicationPair(1, level - 39); // Range 36 - 50 (6^2 - 7^2)
     }
     else if(level < 100) {
-      addMultiplicationAdditionPair(1, level);
-      addMultiplicationSubtractionPair(1, level);
-      addMultiplicationSubtractionPair(1, level);
-      addMultiplicationMultiplicationPair(1, level);
+      addMultiplicationAdditionPair(1, level - 40);
+      addMultiplicationSubtractionPair(1, level - 50);
+      addMultiplicationSubtractionPair(1, level - 60);
+      addMultiplicationMultiplicationPair(1, level - 35); // Range 55 - 64 (7^2 - 8^2)
     }
     else {
       addMultiplicationAdditionPair(1, level);
       addMultiplicationSubtractionPair(1, level);
       addMultiplicationSubtractionPair(1, level);
-      addMultiplicationMultiplicationPair(1, level);
+      addMultiplicationMultiplicationPair(1, level - 36); // Range 64+
 
       var count = (level - 100) / 5,
           i,
@@ -361,7 +367,7 @@ $(function() {
   function addMultiplicationMultiplicationPair(min, max) {
     var sqrt_max = Math.sqrt(max),
         r1 = rand(min+1,sqrt_max),
-        r2 = rand(min,sqrt_max),
+        r2 = rand(min+1,sqrt_max),
         r3 = rand(min,sqrt_max),
         a = r1 * r2,
         b = r2 * r3,
