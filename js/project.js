@@ -58,6 +58,8 @@ $(function() {
       gravityComponent = new GEC.GravityComponent(),
       rotationComponent = new GEC.RotationComponent(),
       realWordSwitchComponent = new GEC.SwitchComponent(),
+      trackComponent = new GEC.TrackComponent(),
+      physicsComponent = new GEC.PhysicsComponent(),
 
       /* Sphere Collision Bounce Vectors */
       sCBVdelta = vec3.create(),
@@ -65,7 +67,10 @@ $(function() {
       sCBVv = vec3.create(),
       sCBVmtdNorm = vec3.create(),
       sCBVimpulse = vec3.create(),
-      cRestitution = 0.95,
+      cRestitution = 1.0,
+
+      _bclOriginalVelocity = vec3.create(),
+      _bclTracking,
 
       /* Random Colours */
       colourPicks = ["00", "66", "88", "aa", "ff"],
@@ -424,6 +429,7 @@ $(function() {
     bubble.text = text;
     bubble.value = value;
     bubble.size = size;
+    bubble.mass = size;
     bubble.colour = colour;
     bubble.opacity = 0.8;
 
@@ -433,6 +439,7 @@ $(function() {
 
     bubble.addComponent(bubbleClickListener);
     bubble.addComponent(realWordSwitchComponent);
+    bubble.addComponent(physicsComponent);
     bubble.addComponent(moveComponent);
     bubble.addComponent(sphereCollisionBouncer);
     bubble.addComponent(worldBounceComponent);
@@ -440,6 +447,52 @@ $(function() {
 
     bubbleManager.addObject(bubble)
   }
+
+  function bubbleClickListener(parent, delta) {
+    var lastClick = inputSystem.lastClick,
+        touch = inputSystem.touches[0];
+
+    if(lastClick[0]){
+      vec2.subtract(bCLV, parent.position, lastClick);
+
+      if(vec2.len(bCLV) < parent.size / 2){
+        selectBubble(parent);
+      }
+    }
+
+    if(touch && !_bclTracking){
+      vec2.subtract(bCLV, parent.position, touch.position);
+
+      if(vec2.len(bCLV) < parent.size / 2){
+        trackComponent.setTarget(touch);
+        parent.addComponent(trackComponent);
+        vec3.copy(_bclOriginalVelocity, parent.velocity);
+        vec3.set(parent.velocity, 0, 0, 0);
+        parent.mass = 1000000000;
+        _bclTracking = parent;
+      }
+    }
+    else if (!touch && _bclTracking) {
+      // This component is acting globablly here thus will fire for the first
+      // object which has it attached
+      _bclTracking.removeComponent(trackComponent);
+      vec3.copy(_bclTracking.velocity, _bclOriginalVelocity);
+      _bclTracking.mass = _bclTracking.size;
+      _bclTracking = null;
+    }
+    else if (_bclTracking){
+      if(_bclTracking.collisionObject){
+        if(_bclTracking.value == _bclTracking.collisionObject.value){
+
+          _bclTracking.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
+          _bclTracking.collisionObject.addComponent(new GEC.FadeDestroyComponent(FADE_TIME));
+
+          game.score += SCORE_ANSWER;
+        }
+      }
+    }
+  }
+
 
   function selectBubble(bubble) {
     if(selectedBubble){
@@ -523,6 +576,8 @@ $(function() {
     // This means we don't double check for collisions
     var foundSelf = false;
 
+    parent.collisionObject = null;
+
     bubbleManager.objects.forEach(function (other) {
       if(parent == other){
         foundSelf = true;
@@ -542,8 +597,8 @@ $(function() {
 
           // resolve intersection --
           // inverse mass quantities
-          var im1 = 1 / parent.size; // / parent.value;
-          var im2 = 1 / other.size; // / other.value;
+          var im1 = 1 / parent.mass; // / parent.value;
+          var im2 = 1 / other.mass; // / other.value;
 
           // push-pull them apart based off their mass
           vec3.scaleAndAdd(parent.position, parent.position, sCBVmtd, im1 / (im1 + im2));
@@ -564,21 +619,12 @@ $(function() {
           // change in momentum
           vec3.scaleAndAdd(parent.velocity, parent.velocity, sCBVimpulse, im1);
           vec3.scaleAndAdd(other.velocity, other.velocity, sCBVimpulse, -im2);
+
+          parent.collisionObject = other;
+          other.collisionObject = parent;
         }
       }
     });
-  }
-
-  function bubbleClickListener(parent, delta) {
-    var lastClick = inputSystem.lastClick;
-
-    if(lastClick[0]){
-      vec2.subtract(bCLV, parent.position, lastClick);
-
-      if(vec2.len(bCLV) < parent.size / 2){
-        selectBubble(parent);
-      }
-    }
   }
 
   GE.GameComponent.create(function FadeDestroyComponent(duration){
