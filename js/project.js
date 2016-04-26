@@ -65,7 +65,8 @@ $(function() {
       sCBVv = vec3.create(),
       sCBVmtdNorm = vec3.create(),
       sCBVimpulse = vec3.create(),
-      cRestitution = 0.95,
+      cRestitution = 1.0,
+      cFriction = 1.0,
 
       /* Random Colours */
       colourPicks = ["00", "66", "88", "aa", "ff"],
@@ -90,8 +91,8 @@ $(function() {
   });
   realWordSwitchComponent.setActive(false);
 
-  worldBounceComponent.cRestitution = 0.90;
-  worldBounceComponent.cFriction = 0.9;
+  worldBounceComponent.cRestitution = cRestitution;
+  worldBounceComponent.cFriction = cFriction;
 
   hudObject.score = game.score;
   hudObject.addComponent(function (parent, delta) {
