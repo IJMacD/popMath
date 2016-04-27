@@ -30,7 +30,9 @@ $(function() {
 
       /* Bootstrap */
       canvas = $('#surface')[0],
+      canvas2 = $('#surface2')[0],
       context = canvas.getContext("2d"),
+      context2 = canvas2.getContext("2d"),
 
       game = new GE.Game({
         canvas: canvas,
@@ -39,8 +41,11 @@ $(function() {
       }),
 
       worldSystem = game.getDefaultWorld(),
-      cameraSystem = game.getDefaultCamera(),
-      renderSystem = game.getDefaultRenderer(),
+      camera1System = game.getDefaultCamera(),
+      render1System = game.getDefaultRenderer(),
+      camera2System = new GE.CameraSystem(GAME_WIDTH, GAME_HEIGHT),
+      render2System = new GE.CanvasRenderSystem(context2, camera2System),
+      renderSystem = new GE.MultiRenderSystem(),
       inputSystem = game.getDefaultInput(),
 
       bubbleManager = new GE.GameObjectManager(),
@@ -74,6 +79,14 @@ $(function() {
       /* Bubble Click Listener */
       bCLV = vec2.create();
 
+  camera2System.setPosition(GAME_WIDTH/2, GAME_HEIGHT/2);
+  renderSystem.addRenderSystem(render1System);
+  renderSystem.addRenderSystem(render2System);
+  canvas2.width = GAME_WIDTH;
+  canvas2.height = GAME_HEIGHT;
+  worldSystem.bounds[4] = -100;
+  worldSystem.bounds[5] = 100;
+
   realWordSwitchComponent.addComponent(gravityComponent);
   realWordSwitchComponent.addComponent(rotationComponent);
   realWordSwitchComponent.addComponent(function RotateOnBounceComponent(parent, delta) {
@@ -106,7 +119,7 @@ $(function() {
       context.fillText("Level: " + game.level, 10, 50);
       var scoreText = "Score: " + Math.round(parent.score),
           scoreWidth = context.measureText(scoreText).width;
-      context.fillText(scoreText, cameraSystem.width - scoreWidth - 10, 50);
+      context.fillText(scoreText, camera1System.width - scoreWidth - 10, 50);
       if(GE.DEBUG && delta){
         fps += ((1000/delta) - fps) / 50;
         context.font = "bold 16px sans-serif";
@@ -270,7 +283,8 @@ $(function() {
   game.root.addObject(hudObject);
 
   game.root.addObject(worldSystem);
-  game.root.addObject(cameraSystem);
+  game.root.addObject(camera1System);
+  game.root.addObject(camera2System);
   game.root.addObject(renderSystem);
 
   game.start();
@@ -281,9 +295,14 @@ $(function() {
         w = $canvas.width() * scale,
         h = $canvas.height() * scale;
     game.setSize(w, h);
-    cameraSystem.setPosition(w/2,h/2);
-    cameraSystem.setSize(w, h);
+    camera1System.setPosition(w/2,h/2);
+    camera1System.setSize(w, h);
+    camera2System.setPosition(w/2,h/2);
+    camera2System.setSize(w, h);
     worldSystem.setBounds([0,0,w,h]);
+
+    canvas2.width = w;
+    canvas2.height = h;
   }
   $(window).on("resize", autosize);
   autosize();
@@ -419,8 +438,8 @@ $(function() {
       colour = randColour();
     }
 
-    vec2.set(bubble.position, Math.random()*game.width, Math.random()*game.height);
-    vec2.random(bubble.velocity, BUBBLE_VELOCITY);
+    vec3.set(bubble.position, Math.random()*game.width, Math.random()*game.height, Math.random()*10);
+    vec3.random(bubble.velocity, BUBBLE_VELOCITY);
 
     bubble.text = text;
     bubble.value = value;
@@ -476,12 +495,15 @@ $(function() {
 
   /* Shorthand Component Update method */
   function bubbleRender(parent, delta){
-    renderSystem.push(function (context) {
+    renderSystem.push(function (context, camera) {
       var x = parent.position[0],
           y = parent.position[1],
+          z = parent.position[2],
+          dx = camera == camera2System ? z*0.01 : 0,
+          size = parent.size/2 + parent.size * 0.1,
           colour = parent.colour || "#000000";
 
-      context.translate(x, y);
+      context.translate(x + dx, y);
 
       context.rotate(parent.rotation);
 
@@ -492,7 +514,7 @@ $(function() {
 
       context.fillStyle = colour;
       context.beginPath();
-      context.arc(0,0,parent.size/2,0,Math.PI*2,false);
+      context.arc(0,0,size,0,Math.PI*2,false);
       context.fill();
 
       context.shadowColor = "transparent";
@@ -596,4 +618,17 @@ $(function() {
       this.elapsed += delta;
     }
   });
+
+  GE.GameComponent.create(function SortByZComponent() {}, {
+    update: function (parent, delta) {
+      var children = parent.objects;
+      if(children){
+        children.sort(function (a, b) {
+          return (a.position[2] < b.position[1] ? -1 : (a.position[2] > b.position[2] ? 1 : 0));
+        });
+      }
+    }
+  });
+
+  bubbleManager.addComponent(new GEC.SortByZComponent());
 });
