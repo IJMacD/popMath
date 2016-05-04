@@ -499,7 +499,7 @@ $(function() {
       var x = parent.position[0],
           y = parent.position[1],
           z = parent.position[2],
-          dx = camera == camera2System ? z*0.01 : 0,
+          dx = (camera == camera2System ? 1 : -1) * z*0.005,
           size = parent.size/2 + parent.size * 0.1,
           colour = parent.colour || "#000000";
 
