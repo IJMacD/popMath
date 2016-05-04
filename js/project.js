@@ -133,13 +133,28 @@ $(function() {
     }
   });
 
+  // Bubble manager again acting as a controller object here listening for the
+  // magic easter egg sequences
   bubbleManager.addComponent(function (parent, delta) {
-    if(this.count == undefined){ this.count = 3; }
-    if(inputSystem.lastKey == GE.InputSystem.Keys.r){
-      this.count --;
-      if(this.count <= 0){
+    if(this.sequence == undefined){ this.sequence = []; }
+    if(inputSystem.lastKey){
+      this.sequence.unshift(inputSystem.lastKey);
+      this.sequence.length = 10;
+
+      if(this.sequence[0] == GE.InputSystem.Keys.r &&
+          this.sequence[1] == GE.InputSystem.Keys.r &&
+          this.sequence[2] == GE.InputSystem.Keys.r) {
+        this.sequence.unshift(0,0,0);
         realWordSwitchComponent.flip();
-        this.count = 3;
+        cRestitution = cFriction = realWordSwitchComponent.active ? 0.95 : 1.0;
+        worldBounceComponent.cRestitution = cRestitution;
+        worldBounceComponent.cFriction = cFriction;
+      } else if(this.sequence[0] == GE.InputSystem.Keys.b &&
+          this.sequence[1] == GE.InputSystem.Keys.b &&
+          this.sequence[2] == GE.InputSystem.Keys.b) {
+        this.sequence.unshift(0,0,0);
+        document.body.style.background = "url(img/bliss.jpg)";
+        document.body.style.backgroundSize = "cover";
       }
     }
   });
